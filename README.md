@@ -1,6 +1,6 @@
 # viaqr
 ## Make sure to place all files in viaqr folder 
-### Database Schemma
+### Database Schema
 ```bash
 CREATE TABLE chat_rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,
