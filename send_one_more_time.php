@@ -8,8 +8,8 @@ $time = 3600000;
 
 // Array of stickers for easy management
 $stickers = [
-    'q1.png', 'q2.png', 'q3.png', 'q4.png', 
-    'q5.png', 'q6.png', 'q7.png', 'q8.png'
+    '1.png', '2.png', '3.png', '4.png', 
+    '5.png', '6.png', '7.png', '8.png'
 ];
 
 ?>
@@ -655,20 +655,24 @@ $stickers = [
             display: flex;
             flex-direction: column;
         }
-        .chat-header {
-            background-color: #fff;
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            box-sizing: border-box;
-            flex-shrink: 0;
-            border-bottom: 1px solid #f1f1f1;
-        }
-        .chat-header .logo { height: 20px; }
-        .chat-header-icon { width: 24px; height: 24px; cursor: pointer; }
+.chat-header {
+    background-color: #fff;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end; /* Align items to the right */
+    align-items: center;
+    padding: 16px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.chat-header-icon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
         .chat-messages-area {
             flex: 1;
             overflow-y: auto;
@@ -792,7 +796,7 @@ $stickers = [
             width: 44px; height: 44px; display: flex;
             align-items: center; justify-content: center; cursor: pointer;
         }
-        .input-icon img { width: 28px; height: 28px; }
+        .input-icon img { width: 100%; height: 100%; }
         #send-btn { border-radius: 50%; background-color: #fae100; }
         #send-btn.disabled { background-color: #f1f1f1; cursor: default; }
         .sticker-panel {
@@ -1118,7 +1122,7 @@ $stickers = [
                         <div class="button-wrapper">
                           <div class="button">다시한번 메시지보내기</div>
                         </div>
-                        <img class="btn-child" alt="" src="img/Frame 2085667778.svg">
+                        <img class="btn-child" alt="" src="img2/chat.png">
                     </div>
                 </div>
             </div>
@@ -1143,8 +1147,7 @@ $stickers = [
     <div id="chat-overlay">
         <div class="chat-container">
             <div class="chat-header">
-                <img class="logo" src="img/logo.png" alt="알리미">
-                <img class="chat-header-icon" alt="Close" src="img/Close_round.svg" id="close-chat-btn">
+                <img class="chat-header-icon" alt="Close" src="img2/Close_round.png" id="close-chat-btn">
             </div>
             
             <div class="chat-messages-area" id="chat-messages-area">
@@ -1165,10 +1168,10 @@ $stickers = [
                     </div>
                     <!-- SWAPPED BUTTONS -->
                     <div class="input-icon" id="send-btn">
-                         <img src="img/send_icon.svg" alt="Send">
+                         <img src="img2/send.png" alt="Send">
                     </div>
                     <div class="input-icon" id="sticker-toggle-btn">
-                        <img src="img/sticker_icon.svg" alt="Stickers">
+                        <img src="img2/emoji.png" alt="Stickers">
                     </div>
                 </div>
             </div>
