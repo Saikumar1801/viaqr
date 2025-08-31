@@ -539,6 +539,11 @@ $stickers = [
             font-family: 'Apple SD Gothic Neo', sans-serif;
             cursor: pointer;
         }
+        .fixed .btn.btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
         .fixed .btn .button-wrapper {
             flex: 1;
             border-radius: 99px;
@@ -655,24 +660,22 @@ $stickers = [
             display: flex;
             flex-direction: column;
         }
-.chat-header {
-    background-color: #fff;
-    width: 100%;
-    display: flex;
-    justify-content: flex-end; /* Align items to the right */
-    align-items: center;
-    padding: 16px;
-    box-sizing: border-box;
-    flex-shrink: 0;
-    border-bottom: 1px solid #f1f1f1;
-}
-
-.chat-header-icon {
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-}
-
+        .chat-header {
+            background-color: #fff;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end; /* Align items to the right */
+            align-items: center;
+            padding: 16px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        .chat-header-icon {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
         .chat-messages-area {
             flex: 1;
             overflow-y: auto;
@@ -710,16 +713,9 @@ $stickers = [
             color: #000;
             border-radius: 18px 18px 4px 18px; /* Flatten bottom-right corner */
         }
-
-        /* Remove background for sticker messages */
-        .message-bubble.sticker-bubble {
-            background: none;
-            padding: 0;
-            border: none;
-        }
-
+        
         /* Add tail to text bubbles only */
-        .message-group.driver .message-bubble:not(.sticker-bubble)::after {
+        .message-group.driver .message-bubble::after {
             content: '';
             position: absolute;
             bottom: 0;
@@ -730,7 +726,7 @@ $stickers = [
             border-right-color: #f1f1f1;
             border-bottom-width: 0;
         }
-        .message-group.requester .message-bubble:not(.sticker-bubble)::after {
+        .message-group.requester .message-bubble::after {
             content: '';
             position: absolute;
             bottom: 0;
@@ -741,7 +737,12 @@ $stickers = [
             border-left-color: #fae100;
             border-bottom-width: 0;
         }
-        .message-bubble img.sticker-message { width: 120px; height: 120px; display: block; }
+        
+        img.sticker-message { 
+            width: 120px; 
+            height: 120px; 
+            display: block; 
+        }
         
         .chat-input-area {
             background-color: #fff;
@@ -773,10 +774,9 @@ $stickers = [
             align-items: center;
             justify-content: flex-start;
             padding: 0 16px;
-            border: 1px solid #f1f1f1; /* NEW */
-            transition: border-color 0.2s ease-in-out; /* NEW */
+            border: 1px solid #f1f1f1;
+            transition: border-color 0.2s ease-in-out;
         }
-        /* NEW */
         .text-input-container:focus-within {
             border-color: #fae100;
         }
@@ -786,9 +786,8 @@ $stickers = [
         }
         #text-input::placeholder {
             color: #999;
-            transition: color 0.2s ease-in-out; /* NEW */
+            transition: color 0.2s ease-in-out;
         }
-        /* NEW */
         #text-input:focus::placeholder {
             color: transparent;
         }
@@ -800,7 +799,7 @@ $stickers = [
         #send-btn { border-radius: 50%; background-color: #fae100; }
         #send-btn.disabled { background-color: #f1f1f1; cursor: default; }
         .sticker-panel {
-            display: grid; /* Initially visible */
+            display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             padding: 20px;
@@ -896,10 +895,9 @@ $stickers = [
                 const senderName = message.sender_type === 'driver' ? '차주' : '이동요청자';
                 const isSticker = message.message_type === 'emoji';
                 
-                const bubbleClass = isSticker ? 'sticker-bubble' : '';
-                const messageContent = isSticker
+                const messageBlock = isSticker
                     ? `<img src="emojis/${message.message}" alt="Sticker" class="sticker-message">`
-                    : escapeHtml(message.message);
+                    : `<div class="message-bubble">${escapeHtml(message.message)}</div>`;
                 
                 const showSenderName = lastSender !== message.sender_type;
                 lastSender = message.sender_type;
@@ -907,7 +905,7 @@ $stickers = [
                 const messageElement = `
                     <div class="message-group ${senderClass}">
                         ${showSenderName ? `<div class="sender-name">${senderName}</div>` : ''}
-                        <div class="message-bubble ${bubbleClass}">${messageContent}</div>
+                        ${messageBlock}
                     </div>`;
                 chatMessagesArea.append(messageElement);
             });
@@ -922,6 +920,7 @@ $stickers = [
 
         function sendMessage(content, messageType) {
             if (!car_info || !content) return;
+            resetInactivityTimer();
             $.ajax({
                 url: 'chat_send.php', type: 'POST',
                 data: { car_info: car_info, message: content, message_type: messageType, sender_type: 'requester' },
@@ -942,7 +941,7 @@ $stickers = [
         function showChat() {
             $('#chat-overlay').css('display', 'flex');
             $('.chat-notification').addClass('hidden');
-            $('.sticker-panel').slideDown(0); // Ensure panel is visible when chat opens
+            $('.sticker-panel').slideDown(0);
             isChatOpen = true; unreadCount = 0;
             updateNotificationBadge();
             resetInactivityTimer();
@@ -979,39 +978,33 @@ $stickers = [
         $('#close-chat-btn').click(hideChat);
         $('.chat-notification').click(showChat);
 
-        // Hide sticker panel when keyboard is expected (input focus)
         $('#text-input').on('focus', function() {
             $('.sticker-panel').slideUp();
         });
 
-        // Toggle sticker panel visibility
         $('#sticker-toggle-btn').click(function() {
             const stickerPanel = $('.sticker-panel');
             if (stickerPanel.is(':visible')) {
                 stickerPanel.slideUp();
             } else {
-                $('#text-input').blur(); // Dismiss keyboard before showing panel
+                $('#text-input').blur();
                 stickerPanel.slideDown();
             }
         });
 
-        // Sticker click handler
         $('.sticker-item').on('click', function() {
             const stickerFile = $(this).data('sticker');
             sendMessage(stickerFile, 'emoji');
         });
         
-        // Check send button state on input
         $('#text-input').on('input', toggleSendButtonState);
 
-        // Send button click handler for text messages
         $('#send-btn').click(function() {
             if ($(this).hasClass('disabled')) return;
             const text = $('#text-input').val().trim();
             if (text) sendMessage(text, 'text');
         });
         
-        // Enter key handler for text input
         $('#text-input').keypress(function(e) {
             if (e.which === 13) {
                 e.preventDefault();
@@ -1024,23 +1017,50 @@ $stickers = [
         checkForMessages();
         setInterval(checkForMessages, 5000);
 
+        // --- CLICK HANDLER WITH 3-STATE MANAGEMENT ---
+        let buttonState = 'initial'; // 'initial', 'sending', 'chat_ready'
+
         $("#send-notification-btn").on("click", function(e) {
             e.preventDefault();
-            $.ajax({
-                url: "/viaqr/kakao_api/send_notification_talk.php", type: "POST", data: $("#notificationForm").serialize(),
-                success: function() {
-                    $('#notification-popup').css('display', 'flex');
-                    createChatRoom();
-                },
-                error: function() { alert('메시지 전송에 실패했습니다.'); }
-            });
+            
+            if (buttonState === 'chat_ready') {
+                showChat();
+                return;
+            }
+
+            if (buttonState === 'initial') {
+                buttonState = 'sending';
+                $("#send-notification-btn").addClass('btn-disabled');
+
+                $.ajax({
+                    url: "/viaqr/kakao_api/send_notification_talk.php", 
+                    type: "POST", 
+                    data: $("#notificationForm").serialize(),
+                    success: function() {
+                        buttonState = 'chat_ready';
+                        $('#notification-popup').css('display', 'flex');
+                        $('#send-notification-btn .button').text('차주와 대화하기');
+                        $('#send-notification-btn .btn-child').attr('src', 'img2/chat2.png');
+                        $("#send-notification-btn").removeClass('btn-disabled'); 
+                        createChatRoom();
+                    },
+                    error: function() { 
+                        alert('메시지 전송에 실패했습니다. 다시 시도해주세요.'); 
+                        buttonState = 'initial';
+                        $("#send-notification-btn").removeClass('btn-disabled');
+                    }
+                });
+            }
         });
+        
+        // --- MODIFIED CLICK HANDLER FOR POPUP ---
         $("#close-popup-btn, #notification-popup").on("click", function(e) {
              if (e.target === this || $(e.target).closest('#close-popup-btn').length) {
                 $('#notification-popup').hide();
-                showChat();
+                showChat(); // Now opens the chat
              }
         });
+
         setTimeout(() => { window.location.href = '/viaqr/final_page.php'; }, <?php echo $time; ?>);
     });
     </script>
@@ -1055,7 +1075,6 @@ $stickers = [
             </div>
         </header>
         <main class="index">
-            <!-- ... Main page content remains the same ... -->
             <section class="intro">
                 <div class="intro-text">
                     <p>개인정보 노출 없는<br>나만의 주차 필수 APP</p>
@@ -1166,7 +1185,6 @@ $stickers = [
                     <div class="text-input-container">
                         <input type="text" id="text-input" placeholder="메시지를 입력해주세요">
                     </div>
-                    <!-- SWAPPED BUTTONS -->
                     <div class="input-icon" id="send-btn">
                          <img src="img2/send.png" alt="Send">
                     </div>
